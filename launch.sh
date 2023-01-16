@@ -19,7 +19,7 @@ make -B
 
 
 # convert raw to mp4 ( uncomment it when you want to verify your raw file )
-# ./cvt_vid.sh r2v out/output.raw out/output.mp4
-# mplayer out/output.mp4
+./cvt_vid.sh r2v out/output.raw out/output.mp4
+mplayer out/output.mp4
 
 

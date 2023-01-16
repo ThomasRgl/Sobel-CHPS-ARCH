@@ -72,10 +72,10 @@ void grayscale_sampled(u8 *bigFrame, u8 *smallFrame) {
 // covert w * h gray image into w * h * 3 rgb 
 void Biggerize(u8 *smallFrame, u8 *bigFrame) {
     for (u64 i = 0; i < H * W; i++) {
-        u8 gray = bigFrame[i*3];
+        u8 gray = smallFrame[i];
 
-        smallFrame[i    ] = gray;
-        smallFrame[i + 1] = gray;
-        smallFrame[i + 2] = gray;
+        bigFrame[i*3    ] = gray;
+        bigFrame[i*3 + 1] = gray;
+        bigFrame[i*3 + 2] = gray;
     }
 }
