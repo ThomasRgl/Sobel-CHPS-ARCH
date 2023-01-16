@@ -37,8 +37,9 @@ int main(int argc, char **argv) {
     u64 nb_bytes = 1, frame_count = 0, samples_count = 0;
 
     //
-    u8 *cframe = _mm_malloc(size, 32);
-    u8 *oframe = _mm_malloc(size, 32);
+    u8 *bigFrame = _mm_malloc(size, 32);
+    u8 *Aframe = _mm_malloc(size/3, 32);
+    u8 *Bframe = _mm_malloc(size/3, 32);
 
     //
     FILE *fpi = fopen(argv[1], "rb");
@@ -53,9 +54,9 @@ int main(int argc, char **argv) {
         return printf("Error: cannot open file '%s'\n", argv[2]), 2;
 
     // Read & process video frames
-    while ((nb_bytes = fread(cframe, sizeof(u8), H * W * 3, fpi))) {
+    while( (nb_bytes = fread(bigFrame, sizeof(u8), H * W * 3, fpi))) {
         //
-        grayscale_weighted(cframe);
+        grayscale_weighted(bigFrame, Aframe);
 
         do {
 
@@ -65,7 +66,7 @@ int main(int argc, char **argv) {
             // Put other versions here
 
 #if BASELINE
-            sobel_baseline(cframe, oframe, 100.0);
+            sobel_baseline(Aframe, Bframe, 100.0);
 #endif
             // Stop
             clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
@@ -88,9 +89,10 @@ int main(int argc, char **argv) {
         // frame number; size in Bytes; elapsed ns; elapsed s; bytes per second
         fprintf(stdout, "%20llu; %20llu bytes; %15.3lf ns; %15.3lf MiB/s\n",
                 frame_count, nb_bytes << 1, elapsed_ns, mib_per_s);
-
+        
         // Write this frame to the output pipe
-        fwrite(oframe, sizeof(u8), H * W * 3, fpo);
+        Biggerize(Bframe, bigFrame);
+        fwrite(bigFrame, sizeof(u8), H * W * 3, fpo);
 
         //
         frame_count++;
@@ -125,8 +127,9 @@ int main(int argc, char **argv) {
             (dev * 100.0 / mea));
 
     //
-    _mm_free(cframe);
-    _mm_free(oframe);
+    _mm_free(Bframe);
+    _mm_free(Aframe);
+    _mm_free(bigFrame);
 
     //
     fclose(fpi);

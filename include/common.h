@@ -19,6 +19,7 @@ f64 mean(f64 *a, u64 n);
 f64 stddev(f64 *a, u64 n);
 
 
-void grayscale_weighted(u8 *frame);
+void grayscale_weighted(u8 *bigFrame, u8 *smallFrame);
+void grayscale_sampled(u8 *bigFrame, u8 *smallFrame);
 
-void grayscale_sampled(u8 *frame);
+void Biggerize(u8 *smallFrame, u8 *bigFrame);

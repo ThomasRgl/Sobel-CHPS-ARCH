@@ -42,34 +42,40 @@ f64 stddev(f64 *a, u64 n) {
 
 
 // Convert an image to its grayscale equivalent - better color precision
-void grayscale_weighted(u8 *frame) {
+void grayscale_weighted(u8 *bigFrame, u8 *smallFrame) {
     f32 gray;
 
-    for (u64 i = 0; i < H * W * 3; i += 3) {
+    for (u64 i = 0; i < H * W; i ++) {
         // Convert RGB color values into grayscale for each pixel using color
         // weights Other possible weights: 0.59, 0.30, 0.11 Principle: mix
         // different quantities of R, G, B to create a variant of gray
-        gray = ((float)frame[i] * 0.299) + ((float)frame[i + 1] * 0.587) +
-               ((float)frame[i + 2] * 0.114);
+        gray = ((float)bigFrame[i * 3] * 0.299) + 
+               ((float)bigFrame[i * 3 + 1] * 0.587) +
+               ((float)bigFrame[i * 3 + 2] * 0.114);
 
-        frame[i] = gray;
-        frame[i + 1] = gray;
-        frame[i + 2] = gray;
+        smallFrame[i] = gray;
     }
 }
 
 // Convert an image to its grayscale equivalent - bad color precision
-void grayscale_sampled(u8 *frame) {
-    for (u64 i = 0; i < H * W * 3; i += 3) {
+void grayscale_sampled(u8 *bigFrame, u8 *smallFrame) {
+    for (u64 i = 0; i < H * W; i++) {
         // R: light gray
         // G: medium gray
         // B: dark gray
-        u8 gray = frame[i];
+        u8 gray = bigFrame[i*3];
 
-        frame[i] = gray;
-        frame[i + 1] = gray;
-        frame[i + 2] = gray;
+        smallFrame[i] = gray;
     }
 }
 
+// covert w * h gray image into w * h * 3 rgb 
+void Biggerize(u8 *smallFrame, u8 *bigFrame) {
+    for (u64 i = 0; i < H * W; i++) {
+        u8 gray = bigFrame[i*3];
 
+        smallFrame[i    ] = gray;
+        smallFrame[i + 1] = gray;
+        smallFrame[i + 2] = gray;
+    }
+}

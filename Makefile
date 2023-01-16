@@ -20,4 +20,4 @@ kernel: src/kernel.c
 
 
 clean:
-	rm -Rf *~ sobel build/* data/*
+	rm -Rf *~ sobel build/*
