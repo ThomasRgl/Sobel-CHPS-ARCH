@@ -20,6 +20,14 @@ make -B
 
 # convert raw to mp4 ( uncomment it when you want to verify your raw file )
 ./cvt_vid.sh r2v out/output.raw out/output.mp4
+
 mplayer out/output.mp4
+
+sha1sum out/output.raw
+# v0 ??
+
+# v1, smallerize 
+# 141be9138b6e1c4635c5a8c41a2d3306dc6b2d1f  out/output.raw
+
 
 

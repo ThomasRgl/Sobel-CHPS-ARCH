@@ -38,8 +38,8 @@ int main(int argc, char **argv) {
 
     //
     u8 *bigFrame = _mm_malloc(size, 32);
-    u8 *Aframe = _mm_malloc(size/3, 32);
-    u8 *Bframe = _mm_malloc(size/3, 32);
+    i16 *Aframe = _mm_malloc(sizeof(i16) * H * W, 32);
+    i16 *Bframe = _mm_malloc(sizeof(i16) * H * W, 32);
 
     //
     FILE *fpi = fopen(argv[1], "rb");
@@ -66,7 +66,8 @@ int main(int argc, char **argv) {
             // Put other versions here
 
 #if BASELINE
-            sobel_baseline(Aframe, Bframe, 100.0);
+            sobel_simd_avx2(Aframe, Bframe, 100.0);
+            // sobel_baseline(Aframe, Bframe, 100.0);
 #endif
             // Stop
             clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
