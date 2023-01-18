@@ -38,8 +38,8 @@ int main(int argc, char **argv) {
 
     //
     u8 *bigFrame = _mm_malloc(size, 32);
-    i16 *Aframe = _mm_malloc(sizeof(i16) * H * W, 32);
-    i16 *Bframe = _mm_malloc(sizeof(i16) * H * W, 32);
+    f32 *Aframe = _mm_malloc(sizeof(f32) * H * W, 32);
+    f32 *Bframe = _mm_malloc(sizeof(f32) * H * W, 32);
 
     //
     FILE *fpi = fopen(argv[1], "rb");

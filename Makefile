@@ -1,8 +1,9 @@
 CC=gcc
 
-CFLAGS=-g3
-#OFLAGS= -O1 -march=native
-OFLAGS= -O1 -march=skylake-avx512
+CFLAGS= 
+#-g3 -ggdb
+OFLAGS= -O3 -march=native -mtune=native 
+# OFLAGS= -O1 -march=skylake-avx512
 LDFLAGS= -lm
 
 INCLUDE=-I include/

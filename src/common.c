@@ -42,7 +42,7 @@ f64 stddev(f64 *a, u64 n) {
 
 
 // Convert an image to its grayscale equivalent - better color precision
-void grayscale_weighted(u8 *bigFrame, i16 *smallFrame) {
+void grayscale_weighted(u8 *bigFrame, f32 *smallFrame) {
     f32 gray;
 
     for (u64 i = 0; i < H * W; i ++) {
@@ -58,19 +58,19 @@ void grayscale_weighted(u8 *bigFrame, i16 *smallFrame) {
 }
 
 // Convert an image to its grayscale equivalent - bad color precision
-void grayscale_sampled(u8 *bigFrame, i16 *smallFrame) {
+void grayscale_sampled(u8 *bigFrame, f32 *smallFrame) {
     for (u64 i = 0; i < H * W; i++) {
         // R: light gray
         // G: medium gray
         // B: dark gray
-        i16 gray = bigFrame[i*3];
+        f32 gray = bigFrame[i*3];
 
         smallFrame[i] = gray;
     }
 }
 
 // covert w * h gray image into w * h * 3 rgb 
-void Biggerize(i16 *smallFrame, u8 *bigFrame) {
+void Biggerize(f32 *smallFrame, u8 *bigFrame) {
     for (u64 i = 0; i < H * W; i++) {
         u8 gray = (u8) smallFrame[i];
 

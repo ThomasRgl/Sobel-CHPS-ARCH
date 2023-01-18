@@ -14,7 +14,9 @@
 #include "global.h"
 
 
-i32 convolve_baseline(i16 *m, i32 *f, u64 fh, u64 fw);
-void sobel_baseline(i16 *cframe, i16 *oframe, f32 threshold);
-void sobel_simd_v1(i16 *Aframe, i16 *Bframe, f32 threshold);
-void sobel_simd_avx2(i16 *Aframe, i16 *Bframe, f32 threshold);
+i32 convolve_baseline(f32 *m, i32 *f, u64 fh, u64 fw);
+void sobel_baseline(f32 *cframe, f32 *oframe, f32 threshold);
+void sobel_simd_avx2(f32 *Aframe, f32 *Bframe, f32 threshold);
+
+// NOT WORKING
+void sobel_simd_avx512(i16 *Aframe, i16 *Bframe, f32 threshold);
