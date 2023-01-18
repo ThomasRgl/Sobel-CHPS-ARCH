@@ -37,9 +37,18 @@ int main(int argc, char **argv) {
     u64 nb_bytes = 1, frame_count = 0, samples_count = 0;
 
     //
-    u8 *bigFrame = _mm_malloc(size, 32);
-    f32 *Aframe = _mm_malloc(sizeof(f32) * H * W, 32);
-    f32 *Bframe = _mm_malloc(sizeof(f32) * H * W, 32);
+    // u8 *bigFrame = _mm_malloc(size, 64);
+    // f32 *Aframe = _mm_malloc(sizeof(f32) * H * W, 64);
+    // f32 *Bframe = _mm_malloc(sizeof(f32) * H * W, 64);
+    u8 *bigFrame = aligned_alloc( 64, size );
+    f32 *Aframe = aligned_alloc( 64, sizeof(f32) * H * W );
+    f32 *Bframe = aligned_alloc( 64, sizeof(f32) * H * W );
+
+    // u8 *bigFrame = malloc( size );
+    // f32 *Aframe = malloc( sizeof(f32) * H * W );
+    // f32 *Bframe = malloc( sizeof(f32) * H * W );
+
+
 
     //
     FILE *fpi = fopen(argv[1], "rb");
@@ -65,10 +74,23 @@ int main(int argc, char **argv) {
 
             // Put other versions here
 
-#if BASELINE
+#if AVX2
             sobel_simd_avx2(Aframe, Bframe, 100.0);
-            // sobel_baseline(Aframe, Bframe, 100.0);
 #endif
+#if AVX2_2
+            sobel_simd_avx2v2(Aframe, Bframe, 100.0);
+#endif
+
+#if BASELINE
+            sobel_baseline(Aframe, Bframe, 100.0);
+#endif
+#if OPT1
+            sobel_opti_v1(Aframe, Bframe, 100.0);
+#endif
+#if OPT2
+            sobel_opti_v2(Aframe, Bframe, 100.0);
+#endif
+
             // Stop
             clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
 

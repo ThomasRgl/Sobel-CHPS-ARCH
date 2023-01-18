@@ -6,15 +6,32 @@ mkdir -p out
 mkdir -p data
 mkdir -p build
 
+rm out/*.raw
+
 # compile 
-make -B 
 
 # convert mp4 to raw ( run it one time and then comment it )
 # ./cvt_vid.sh v2r in/input.mp4 in/input.raw
 
 
 # The program
+
+make -B DEFINE=OPT1
 ./sobel in/input.raw out/output.raw
+
+make -B DEFINE=AVX2
+./sobel in/input.raw out/output.raw
+
+make -B DEFINE=BASELINE
+./sobel in/input.raw out/output.raw
+
+make -B DEFINE=OPT2
+./sobel in/input.raw out/output.raw
+
+make -B DEFINE=AVX2_2
+./sobel in/input.raw out/output.raw
+
+
 
 
 
