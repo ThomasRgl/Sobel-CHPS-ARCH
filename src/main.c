@@ -80,7 +80,9 @@ int main(int argc, char **argv) {
 #if AVX2_2
             sobel_simd_avx2v2(Aframe, Bframe, 100.0);
 #endif
-
+#if AVX2_3
+            sobel_simd_avx2v3(Aframe, Bframe, 100.0);
+#endif
 #if BASELINE
             sobel_baseline(Aframe, Bframe, 100.0);
 #endif

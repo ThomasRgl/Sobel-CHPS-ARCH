@@ -187,6 +187,199 @@ void sobel_opti_v2(f32 * restrict  Aframe, f32 * restrict Bframe, f32 threshold)
     
 }
 
+void sobel_simd_avx2v3(f32 *restrict Aframe, f32 *restrict Bframe, f32 threshold) {
+    // __m256 _fm2  = _mm256_set1_ps(-2);
+    // __m256 _f2  = _mm256_set1_ps(2);
+
+
+    __m256 _255 = _mm256_set1_ps(254);
+    __m256 _threshold2 = _mm256_set1_ps(10000);
+
+    for (u64 i = 0; i < (H - 3); i+=3){
+        for (u64 j = 0; j < (W  - 3); j+=8) {
+            
+            u64 idx = INDEX(i, j, W );
+
+
+
+            // column 1
+            __m256 _a1 = _mm256_loadu_ps( &Aframe[ idx + IDX_1 ] );
+            __m256 _a2 = _mm256_loadu_ps( &Aframe[ idx + IDX_4 ] );
+            __m256 _a3 = _mm256_loadu_ps( &Aframe[ idx + IDX_7 ] );
+            __m256 _a4 = _mm256_loadu_ps( &Aframe[ idx + IDX_10 ] );
+            __m256 _a5 = _mm256_loadu_ps( &Aframe[ idx + IDX_13 ] );
+            // __m256 _a6 = _mm256_loadu_ps( &Aframe[ idx + IDX_16 ] );
+            
+            // line 1
+            __m256 _bx1 = _mm256_setzero_ps();
+            __m256 _by1 = _mm256_setzero_ps();
+
+            _bx1 = _mm256_sub_ps( _bx1, _a1 ); // bx1 - a1
+            _bx1 = _mm256_sub_ps( _bx1, _a2 ); // bx1 - 2 * a2
+            _bx1 = _mm256_sub_ps( _bx1, _a2 );
+            _bx1 = _mm256_sub_ps( _bx1, _a3 ); //bx1 - a3
+
+            _by1 = _mm256_sub_ps( _by1, _a1 ); 
+            _by1 = _mm256_add_ps( _by1, _a3 ); 
+            
+            // line 2
+            __m256 _bx2 = _mm256_setzero_ps();
+            __m256 _by2 = _mm256_setzero_ps();
+
+            _bx2 = _mm256_sub_ps( _bx2, _a2 ); 
+            _bx2 = _mm256_sub_ps( _bx2, _a3 ); 
+            _bx2 = _mm256_sub_ps( _bx2, _a3 );
+            _bx2 = _mm256_sub_ps( _bx2, _a4 ); 
+        
+            _by2 = _mm256_sub_ps( _by2, _a2 ); 
+            _by2 = _mm256_add_ps( _by2, _a4 ); 
+           
+
+            // line 3
+            __m256 _bx3 = _mm256_setzero_ps();
+            __m256 _by3 = _mm256_setzero_ps();
+
+            _bx3 = _mm256_sub_ps( _bx3, _a3 ); 
+            _bx3 = _mm256_sub_ps( _bx3, _a4 ); 
+            _bx3 = _mm256_sub_ps( _bx3, _a4 );
+            _bx3 = _mm256_sub_ps( _bx3, _a5 ); 
+
+            _by3 = _mm256_sub_ps( _by3, _a3 ); 
+            _by3 = _mm256_add_ps( _by3, _a5 ); 
+            
+            //
+
+
+
+            // column 2
+            _a1 = _mm256_loadu_ps( &Aframe[ idx + IDX_2 ] );
+            _a2 = _mm256_loadu_ps( &Aframe[ idx + IDX_5 ] );
+            _a3 = _mm256_loadu_ps( &Aframe[ idx + IDX_8 ] );
+            _a4 = _mm256_loadu_ps( &Aframe[ idx + IDX_11 ] );
+            _a5 = _mm256_loadu_ps( &Aframe[ idx + IDX_14 ] );
+            // __m256 _a6 = _mm256_loadu_ps( &Aframe[ idx + IDX_16 ] );
+            
+            // line 1 
+            _by1 = _mm256_sub_ps( _by1, _a1 ); 
+            _by1 = _mm256_sub_ps( _by1, _a1 ); 
+            _by1 = _mm256_add_ps( _by1, _a3 ); 
+            _by1 = _mm256_add_ps( _by1, _a3 ); 
+            
+            // line 2
+            _by2 = _mm256_sub_ps( _by2, _a2 ); 
+            _by2 = _mm256_sub_ps( _by2, _a2 ); 
+            _by2 = _mm256_add_ps( _by2, _a4 ); 
+            _by2 = _mm256_add_ps( _by2, _a4 ); 
+            
+            // line 3
+            _by3 = _mm256_sub_ps( _by3, _a3 ); 
+            _by3 = _mm256_sub_ps( _by3, _a3 ); 
+            _by3 = _mm256_add_ps( _by3, _a5 ); 
+            _by3 = _mm256_add_ps( _by3, _a5 ); 
+
+
+
+
+            // i32 f1[9] = {-1,  0,  1, 
+            //              -2,  0,  2, 
+            //              -1,  0,  1}; // 3x3 matrix
+            //
+            // i32 f2[9] = {-1, -2, -1, 
+            //               0,  0,  0, 
+            //               1,  2,  1}; // 3x3 matrix
+            //
+
+
+
+            // column 3
+            _a1 = _mm256_loadu_ps( &Aframe[ idx + IDX_3 ] );
+            _a2 = _mm256_loadu_ps( &Aframe[ idx + IDX_6 ] );
+            _a3 = _mm256_loadu_ps( &Aframe[ idx + IDX_9 ] );
+            _a4 = _mm256_loadu_ps( &Aframe[ idx + IDX_12 ] );
+            _a5 = _mm256_loadu_ps( &Aframe[ idx + IDX_15 ] );
+            // __m256 _a6 = _mm256_loadu_ps( &Aframe[ idx + IDX_16 ] );
+            
+            // line 1
+
+            _bx1 = _mm256_add_ps( _bx1, _a1 ); // bx1 + a1
+            _bx1 = _mm256_add_ps( _bx1, _a2 ); // bx1 + 2 * a2
+            _bx1 = _mm256_add_ps( _bx1, _a2 );
+            _bx1 = _mm256_add_ps( _bx1, _a3 ); //bx1 + a3
+
+            _by1 = _mm256_sub_ps( _by1, _a1 ); 
+            _by1 = _mm256_add_ps( _by1, _a3 ); 
+            
+            // line 2
+
+            _bx2 = _mm256_add_ps( _bx2, _a2 ); 
+            _bx2 = _mm256_add_ps( _bx2, _a3 ); 
+            _bx2 = _mm256_add_ps( _bx2, _a3 );
+            _bx2 = _mm256_add_ps( _bx2, _a4 ); 
+        
+            _by2 = _mm256_sub_ps( _by2, _a2 ); 
+            _by2 = _mm256_add_ps( _by2, _a4 ); 
+           
+
+            // line 3
+
+            _bx3 = _mm256_add_ps( _bx3, _a3 ); 
+            _bx3 = _mm256_add_ps( _bx3, _a4 ); 
+            _bx3 = _mm256_add_ps( _bx3, _a4 );
+            _bx3 = _mm256_add_ps( _bx3, _a5 ); 
+
+            _by3 = _mm256_sub_ps( _by3, _a3 ); 
+            _by3 = _mm256_add_ps( _by3, _a5 ); 
+ 
+            
+
+
+
+            // finish and store 
+            
+            // line 1
+            _bx1 = _mm256_mul_ps( _bx1, _bx1 );
+            _by1 = _mm256_mul_ps( _by1, _by1 );
+            _bx1 = _mm256_add_ps( _bx1, _by1 );
+            //
+            _bx1 = _mm256_cmp_ps( _threshold2, _bx1, _MM_CMPINT_LE);
+            _bx1 = _mm256_add_ps( _bx1, _255 );
+
+            _mm256_store_ps( &Bframe[ INDEX(i+0, j, W)], _bx1 );
+           
+
+            // line 2
+            _bx2 = _mm256_mul_ps( _bx2, _bx2 );
+            _by2 = _mm256_mul_ps( _by2, _by2 );
+            _bx2 = _mm256_add_ps( _bx2, _by2 );
+
+            _bx2 = _mm256_cmp_ps( _threshold2, _bx2, _MM_CMPINT_LE);
+            _bx2 = _mm256_add_ps( _bx2, _255 );
+
+            _mm256_store_ps( &Bframe[ INDEX(i+1, j, W)], _bx2 );
+           
+
+            // line 3
+            _bx3 = _mm256_mul_ps( _bx3, _bx3 );
+            _by3 = _mm256_mul_ps( _by3, _by3 );
+            _bx3 = _mm256_add_ps( _bx3, _by3 );
+
+            _bx3 = _mm256_cmp_ps( _threshold2, _bx3, _MM_CMPINT_LE);
+            _bx3 = _mm256_add_ps( _bx3, _255 );
+
+            _mm256_store_ps( &Bframe[ INDEX(i+2, j, W)], _bx3 );
+            
+
+
+
+
+            // _b1 = _mm256_cmp_ps( _threshold2, _b1, _MM_CMPINT_LE);
+            // _b1 = _mm256_add_ps( _b1, _255 );
+            // _mm256_store_ps( &Bframe[ INDEX(i, j, W)], _b1 );
+            
+                    }
+    }
+}
+
 void sobel_opti_v1(f32 * restrict  Aframe, f32 * restrict Bframe, f32 threshold) {
     f32 gx, gy;
     i32 mag = 0.0;
