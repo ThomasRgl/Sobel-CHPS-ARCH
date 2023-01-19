@@ -8,11 +8,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 //
 #include "common.h"
 #include "kernel.h"
-
 
 
 
@@ -37,18 +37,27 @@ int main(int argc, char **argv) {
     u64 nb_bytes = 1, frame_count = 0, samples_count = 0;
 
     //
-    // u8 *bigFrame = _mm_malloc(size, 64);
-    // f32 *Aframe = _mm_malloc(sizeof(f32) * H * W, 64);
-    // f32 *Bframe = _mm_malloc(sizeof(f32) * H * W, 64);
-    u8 *bigFrame = aligned_alloc( 64, size );
-    f32 *Aframe = aligned_alloc( 64, sizeof(f32) * H * W );
-    f32 *Bframe = aligned_alloc( 64, sizeof(f32) * H * W );
+    u8  __attribute__ ((aligned(32))) *bigFrame = _mm_malloc(size, 32);
+    f32 __attribute__ ((aligned(32))) *Aframe = _mm_malloc(sizeof(f32) * H * W, 32);
+    f32 __attribute__ ((aligned(32))) *Bframe = _mm_malloc(sizeof(f32) * H * W, 32);
+
+    // u8 *bigFrame = NULL; 
+    // f32 *Aframe = NULL; 
+    // f32 *Bframe = NULL;
+
+    // posix_memalign( (void**)&bigFrame, 256, size);
+    // posix_memalign( (void**)&Aframe, 256, sizeof(f32) * H * W);
+    // posix_memalign( (void**)&Bframe, 256, sizeof(f32) * H * W);
+    // u8 *restrict bigFrame = aligned_alloc( 64, size );
+    // f32 *restrict Aframe = aligned_alloc( 64, sizeof(f32) * H * W );
+    // f32 *restrict Bframe = aligned_alloc( 64, sizeof(f32) * H * W );
 
     // u8 *bigFrame = malloc( size );
     // f32 *Aframe = malloc( sizeof(f32) * H * W );
     // f32 *Bframe = malloc( sizeof(f32) * H * W );
 
-
+    u8 *tmp = aligned_alloc( 64, 1024*1024*1024 );
+    memset( tmp, 0, 1024*1024*1024 );
 
     //
     FILE *fpi = fopen(argv[1], "rb");
@@ -66,6 +75,7 @@ int main(int argc, char **argv) {
     while( (nb_bytes = fread(bigFrame, sizeof(u8), H * W * 3, fpi))) {
         //
         grayscale_weighted(bigFrame, Aframe);
+        // Ccleaner(tmp);
 
         do {
 
@@ -92,6 +102,15 @@ int main(int argc, char **argv) {
 #if OPT2
             sobel_opti_v2(Aframe, Bframe, 100.0);
 #endif
+#if CL
+            sobel_CL(Aframe, Bframe, 100.0, 0,0);
+#endif
+#if CL_AVX
+            sobel_CL_AVX(Aframe, Bframe, 100.0, 0,0);
+#endif
+
+
+
 
             // Stop
             clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
@@ -152,9 +171,10 @@ int main(int argc, char **argv) {
             (dev * 100.0 / mea));
 
     //
-    _mm_free(Bframe);
-    _mm_free(Aframe);
-    _mm_free(bigFrame);
+    free(Bframe);
+    free(Aframe);
+    free(bigFrame);
+    free(tmp);
 
     //
     fclose(fpi);

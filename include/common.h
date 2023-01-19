@@ -23,3 +23,5 @@ void grayscale_weighted(u8 *bigFrame, f32 *smallFrame);
 void grayscale_sampled(u8 *bigFrame, f32 *smallFrame);
 
 void Biggerize(f32 *smallFrame, u8 *bigFrame);
+
+void Ccleaner( u8 * tmp );

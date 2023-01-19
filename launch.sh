@@ -15,32 +15,45 @@ rm out/*.raw
 
 
 # The program
-
-# make -B DEFINE=OPT1
-# ./sobel in/input.raw out/output.raw
-#
-# make -B DEFINE=AVX2
-# ./sobel in/input.raw out/output.raw
-#
-# make -B DEFINE=BASELINE
-# ./sobel in/input.raw out/output.raw
-#
-# make -B DEFINE=OPT2
-# ./sobel in/input.raw out/output.raw
-#
-# make -B DEFINE=AVX2_2
-# ./sobel in/input.raw out/output.raw
-#
-make -B DEFINE=AVX2_3
-./sobel in/input.raw out/output.raw
+ # make -B DEFINE=BASELINE
+ # ./sobel in/input.raw out/output.raw
+ #
+ # make -B DEFINE=OPT1
+ # ./sobel in/input.raw out/output.raw
+ #
+ # make -B DEFINE=OPT2
+ # ./sobel in/input.raw out/output.raw
 
 
+ make -B DEFINE=AVX2
+ ./sobel in/input.raw out/output.raw
 
-# 15
-# 19
-# 4.4
-# 11
-# 22
+  # make -B DEFINE=AVX2_2
+  # ./sobel in/input.raw out/output.raw
+  #
+  # make -B DEFINE=AVX2_3
+  # ./sobel in/input.raw out/output.raw
+
+
+ make -B DEFINE=CL
+ ./sobel in/input.raw out/output.raw
+
+ make -B DEFINE=CL_AVX
+ ./sobel in/input.raw out/output.raw
+
+
+ # make -B DEFINE=ONED
+ # ./sobel in/input.raw out/output.raw
+
+
+
+
+# 15 opt1
+# 19 avx2
+# 4.4 baseline
+# 11 opt2
+# 22 avxv2
+# 17 avxV3
 
 
 # convert raw to mp4 ( uncomment it when you want to verify your raw file )

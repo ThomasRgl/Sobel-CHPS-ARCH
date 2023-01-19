@@ -79,3 +79,10 @@ void Biggerize(f32 *smallFrame, u8 *bigFrame) {
         bigFrame[i*3 + 2] = gray;
     }
 }
+
+
+void Ccleaner( u8 * tmp ){
+    for( u64 i = 0; i < 1024 * 1024 * 1024; i++){
+        tmp[i]++;
+    }
+}
