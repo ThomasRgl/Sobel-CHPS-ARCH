@@ -1,3 +1,14 @@
+# LANCER LE PROGRAMME
+
+Par défault, le programme va lancer toute les versions.
+Pour lancer qu'une versions précise, il faut commenter 
+dans le script launch.sh les versions que nous ne souhaitons pas lancer.
+
+Il est nécéssaire d'ajouter une vidéo dans un repertoire in, puis 
+de la convertir avec  ` ./cvt_vid.sh v2r in/input.mp4 in/input.raw `
+
+
+
 # Intro
 -------
 
