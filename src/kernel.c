@@ -869,3 +869,212 @@ void sobel_CL_AVX(f32 *restrict Aframe, f32 *restrict Bframe, f32 threshold, f32
 
 
 
+void sobel_1D(f32 *restrict Aframe, f32 *restrict Bframe, f32 threshold, f32 *restrict bufferx, f32 *restrict buffery) {
+    f32 gx, gy;
+    i32 mag = 0.0;
+    i32 threshold2 = 100000;
+    
+    for (u64 ii = 0; ii < 15; ii++){
+        // printf("ii %llu\n", ii);
+
+        for (u64 jj = 0; jj < 5; jj++) {
+            // printf("jj %llu\n", jj);
+
+            for( u64 i = 0; i < 48 - 2 ; i++){
+                // printf("i %llu\n", i);
+                for( u64 j = 0; j < 32 * 8 - 2 ; j++){
+
+                    u64 idx = INDEX(ii * (48-2) + i, jj  * (32 * 8 - 2) + j, W );
+                    u64 buff_idx = INDEX(i, j, 32*8 );
+                    
+                    f32 frame1 = Aframe[idx + IDX_1];
+                    f32 frame2 = Aframe[idx + IDX_2];
+                    f32 frame3 = Aframe[idx + IDX_3];
+
+                    // f32 frame4 = Aframe[idx + IDX_4];
+                    // f32 frame5 = Aframe[idx + IDX_5];
+                    // f32 frame6 = Aframe[idx + IDX_6];
+                    //
+                    // f32 frame7 = Aframe[idx + IDX_7];
+                    // f32 frame8 = Aframe[idx + IDX_8];
+                    // f32 frame9 = Aframe[idx + IDX_9];
+
+
+                    gx = 0;
+                    gy = 0;
+                    
+                    gx += frame1 * ( 1); 
+                    gx += frame2 * ( 2);
+                    gx += frame3 * ( 1);
+
+                    gy += frame1 * (-1);
+                    gy += frame2 * ( 0);
+                    gy += frame3 * ( 1);
+
+
+                    bufferx[  buff_idx   ] = gx;
+                    buffery[  buff_idx   ] = gy;
+
+                }
+            }
+
+
+           for( u64 i = 0; i < 48 - 2 ; i++){
+                // printf("i %llu\n", i);
+                for( u64 j = 0; j < 32 * 8 - 2 ; j++){
+
+                    u64 idx = INDEX(ii * (48-2) + i, jj  * (32 * 8 - 2) + j, W );
+                    u64 buff_idx = INDEX(i, j, 32*8 );
+                    
+                    f32 frame1x = bufferx[buff_idx + 0];
+                    f32 frame2x = bufferx[buff_idx + 32*8];
+                    f32 frame3x = bufferx[buff_idx + 32*8*2];
+ 
+                    f32 frame1y = buffery[buff_idx + 0];
+                    f32 frame2y = buffery[buff_idx + 32*8];
+                    f32 frame3y = buffery[buff_idx + 32*8*2];
+
+
+                    gx = 0;
+                    gy = 0;
+                    
+                    gy += frame1y * ( 1); 
+                    gy += frame2y * ( 2);
+                    gy += frame3y * ( 1);
+
+                    gx += frame1x * (-1);
+                    gx += frame2x * ( 0);
+                    gx += frame3x * ( 1);
+
+                    mag = gx * gx + gy * gy;
+
+                    Bframe[  idx + IDX_4  ] = (mag > 10000) ? 255 : 0;
+
+                }
+            }
+
+
+
+           
+
+
+
+        }
+    }
+}
+
+
+void sobel_simd_avx2v4(f32 *restrict Aframe, f32 *restrict Bframe, f32 threshold) {
+    __m256 _f1  = _mm256_set1_ps(1);
+    __m256 _f2  = _mm256_set1_ps(2);
+    __m256 _f3  = _mm256_set1_ps(3);
+    __m256 _f4  = _mm256_set1_ps(4);
+    __m256 _fm1 = _mm256_set1_ps(-1);
+    __m256 _fm2 = _mm256_set1_ps(-2);
+
+    __m256 _255 = _mm256_set1_ps(255);
+    __m256 _threshold2 = _mm256_set1_ps(10000);
+
+    for (u64 i = 0; i < (H - 3); i+=2){
+        for (u64 j = 0; j < (W  - 3); j+=8) {
+            // printf("%llu %llu\n", i, j);
+            // printf("%f\n", Aframe[ INDEX(i+0, j+0, W) ]);
+            __m256 _a1 = _mm256_loadu_ps( &Aframe[ INDEX(i+0, j+0, W) ] );
+            __m256 _a2 = _mm256_loadu_ps( &Aframe[ INDEX(i+0, j+1, W) ] );
+            __m256 _a3 = _mm256_loadu_ps( &Aframe[ INDEX(i+0, j+2, W) ] );
+            __m256 _a4 = _mm256_loadu_ps( &Aframe[ INDEX(i+1, j+0, W) ] );
+            __m256 _a5 = _mm256_loadu_ps( &Aframe[ INDEX(i+1, j+1, W) ] );
+            __m256 _a6 = _mm256_loadu_ps( &Aframe[ INDEX(i+1, j+2, W) ] );
+            __m256 _a7 = _mm256_loadu_ps( &Aframe[ INDEX(i+2, j+0, W) ] );
+            __m256 _a8 = _mm256_loadu_ps( &Aframe[ INDEX(i+2, j+1, W) ] );
+            __m256 _a9 = _mm256_loadu_ps( &Aframe[ INDEX(i+2, j+2, W) ] );
+            __m256 _a10 = _mm256_loadu_ps( &Aframe[ INDEX(i+3, j+0, W) ] );
+            __m256 _a11 = _mm256_loadu_ps( &Aframe[ INDEX(i+3, j+1, W) ] );
+            __m256 _a12 = _mm256_loadu_ps( &Aframe[ INDEX(i+3, j+2, W) ] );
+
+            
+            //b1
+            __m256 _b1 = _mm256_setzero_ps();
+            __m256 _b2 = _mm256_setzero_ps();
+ 
+            _b1 = _mm256_sub_ps( _b1 ,_a1  );
+            _b1 = _mm256_add_ps( _b1 ,_a3  );
+            _b1 = _mm256_sub_ps( _b1 ,_a4  );
+            _b1 = _mm256_sub_ps( _b1 ,_a4  );
+            _b1 = _mm256_add_ps( _b1 ,_a6  );
+            _b1 = _mm256_add_ps( _b1 ,_a6  );
+            _b1 = _mm256_sub_ps( _b1 ,_a7  );
+            _b1 = _mm256_add_ps( _b1 ,_a9  );
+
+             
+            _b2 = _mm256_sub_ps( _b2, _a1 );
+            _b2 = _mm256_sub_ps( _b2, _a2 );
+            _b2 = _mm256_sub_ps( _b2, _a2 );
+            _b2 = _mm256_sub_ps( _b2, _a3 );
+            _b2 = _mm256_add_ps( _b2, _a7 );
+            _b2 = _mm256_add_ps( _b2, _a8 );
+            _b2 = _mm256_add_ps( _b2, _a8 );
+            _b2 = _mm256_add_ps( _b2, _a9 );
+
+            _b1 = _mm256_mul_ps( _b1, _b1 );
+            _b2 = _mm256_mul_ps( _b2, _b2 );
+            _b1 = _mm256_add_ps( _b2, _b1 );
+
+
+            _b1 = _mm256_cmp_ps( _threshold2, _b1, _MM_CMPINT_LE);
+            _b1 = _mm256_add_ps( _b1, _255 );
+            _mm256_store_ps( &Bframe[ INDEX(i, j, W)], _b1 );
+           
+            // 
+            _b1 = _mm256_setzero_ps();
+            _b2 = _mm256_setzero_ps();
+
+            _b1 = _mm256_sub_ps( _b1 ,_a4  );
+            _b1 = _mm256_add_ps( _b1 ,_a6  );
+            _b1 = _mm256_sub_ps( _b1 ,_a7  );
+            _b1 = _mm256_sub_ps( _b1 ,_a7  );
+            _b1 = _mm256_add_ps( _b1 ,_a9  );
+            _b1 = _mm256_add_ps( _b1 ,_a9  );
+            _b1 = _mm256_sub_ps( _b1 ,_a10  );
+            _b1 = _mm256_add_ps( _b1 ,_a12  );
+
+             
+            _b2 = _mm256_sub_ps( _b2, _a4 );
+            _b2 = _mm256_sub_ps( _b2, _a5 );
+            _b2 = _mm256_sub_ps( _b2, _a5 );
+            _b2 = _mm256_sub_ps( _b2, _a6 );
+            _b2 = _mm256_add_ps( _b2, _a10 );
+            _b2 = _mm256_add_ps( _b2, _a11 );
+            _b2 = _mm256_add_ps( _b2, _a11 );
+            _b2 = _mm256_add_ps( _b2, _a12 );
+
+            //
+            // _b1 = 
+            //     _mm256_add_ps( _mm256_mul_ps (_a4, _fm1 ),
+            //     _mm256_add_ps( _mm256_mul_ps (_a6, _f1  ),
+            //     _mm256_add_ps( _mm256_mul_ps (_a7, _fm2 ),
+            //     _mm256_add_ps( _mm256_mul_ps (_a9, _f2  ),
+            //     _mm256_add_ps( _mm256_mul_ps (_a10, _fm1 ),
+            //     _mm256_add_ps( _mm256_mul_ps (_a12, _f1  ), _b1))))));
+            //
+            // _b2 = 
+            //     _mm256_add_ps( _mm256_mul_ps (_a4, _fm1 ),
+            //     _mm256_add_ps( _mm256_mul_ps (_a5, _fm2 ),
+            //     _mm256_add_ps( _mm256_mul_ps (_a6, _fm1 ),
+            //     _mm256_add_ps( _mm256_mul_ps (_a10, _f1  ),
+            //     _mm256_add_ps( _mm256_mul_ps (_a11, _f2  ),
+            //     _mm256_add_ps( _mm256_mul_ps (_a12, _f1  ), _b2))))));
+
+            _b1 = _mm256_mul_ps( _b1, _b1 );
+            _b2 = _mm256_mul_ps( _b2, _b2 );
+            _b1 = _mm256_add_ps( _b2, _b1 );
+
+
+            _b1 = _mm256_cmp_ps( _threshold2, _b1, _MM_CMPINT_LE);
+            _b1 = _mm256_add_ps( _b1, _255 );
+            _mm256_store_ps( &Bframe[ INDEX(i+1, j, W)], _b1 );
+            
+
+        }
+    }
+}

@@ -15,24 +15,29 @@ rm out/*.raw
 
 
 # The program
- # make -B DEFINE=BASELINE
- # ./sobel in/input.raw out/output.raw
- #
- # make -B DEFINE=OPT1
- # ./sobel in/input.raw out/output.raw
- #
- # make -B DEFINE=OPT2
- # ./sobel in/input.raw out/output.raw
+ make -B DEFINE=BASELINE
+ ./sobel in/input.raw out/output.raw
+
+ make -B DEFINE=OPT1
+ ./sobel in/input.raw out/output.raw
+
+ make -B DEFINE=OPT2
+ ./sobel in/input.raw out/output.raw
 
 
  make -B DEFINE=AVX2
  ./sobel in/input.raw out/output.raw
 
-  # make -B DEFINE=AVX2_2
-  # ./sobel in/input.raw out/output.raw
-  #
-  # make -B DEFINE=AVX2_3
-  # ./sobel in/input.raw out/output.raw
+ make -B DEFINE=AVX2_2
+ ./sobel in/input.raw out/output.raw
+
+
+ make -B DEFINE=AVX2_3
+ ./sobel in/input.raw out/output.raw
+
+ make -B DEFINE=AVX2_4
+ ./sobel in/input.raw out/output.raw
+
 
 
  make -B DEFINE=CL
@@ -42,8 +47,8 @@ rm out/*.raw
  ./sobel in/input.raw out/output.raw
 
 
- # make -B DEFINE=ONED
- # ./sobel in/input.raw out/output.raw
+ make -B DEFINE=D1D
+ ./sobel in/input.raw out/output.raw
 
 
 

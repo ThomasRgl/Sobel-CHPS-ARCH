@@ -6,14 +6,15 @@ CC=gcc
 # OPT1=___
 DEFINE= -D$(BASELINE) -D$(AVX2) -D$(OPT1)
 
-CFLAGS= -g3 -ggdb
+# CFLAGS= -g3 -ggdb
+CFLAGS= -g1
 # OFLAGS= -O3 -march=native -mtune=native -funroll-loops -ftree-vectorize
 OFLAGS= -Ofast -march=native -mtune=native -funroll-loops -ftree-vectorize 
 # OFLAGS= -Ofast -ffast-math -march=native -mtune=native -funroll-loops -ftree-vectorize
 
 #OFLAGS= -Ofast -ffast-math -march=native -mtune=native 
 # OFLAGS= -O1 -march=skylake-avx512
-LDFLAGS= -lm
+LDFLAGS= -lm 
 
 INCLUDE=-I include/
 

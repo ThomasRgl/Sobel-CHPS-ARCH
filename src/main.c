@@ -41,6 +41,9 @@ int main(int argc, char **argv) {
     f32 __attribute__ ((aligned(32))) *Aframe = _mm_malloc(sizeof(f32) * H * W, 32);
     f32 __attribute__ ((aligned(32))) *Bframe = _mm_malloc(sizeof(f32) * H * W, 32);
 
+    f32 __attribute__ ((aligned(32))) *bufferx = _mm_malloc(sizeof(f32) * 48 * 32 * 8, 32);
+    f32 __attribute__ ((aligned(32))) *buffery = _mm_malloc(sizeof(f32) * 48 * 32 * 8, 32);
+
     // u8 *bigFrame = NULL; 
     // f32 *Aframe = NULL; 
     // f32 *Bframe = NULL;
@@ -93,6 +96,9 @@ int main(int argc, char **argv) {
 #if AVX2_3
             sobel_simd_avx2v3(Aframe, Bframe, 100.0);
 #endif
+#if AVX2_4
+            sobel_simd_avx2v4(Aframe, Bframe, 100.0);
+#endif
 #if BASELINE
             sobel_baseline(Aframe, Bframe, 100.0);
 #endif
@@ -108,6 +114,10 @@ int main(int argc, char **argv) {
 #if CL_AVX
             sobel_CL_AVX(Aframe, Bframe, 100.0, 0,0);
 #endif
+#if D1D
+            sobel_1D(Aframe, Bframe, 100.0, bufferx,buffery);
+#endif
+
 
 
 
@@ -175,6 +185,8 @@ int main(int argc, char **argv) {
     free(Aframe);
     free(bigFrame);
     free(tmp);
+    free(buffery);
+    free(bufferx);
 
     //
     fclose(fpi);
